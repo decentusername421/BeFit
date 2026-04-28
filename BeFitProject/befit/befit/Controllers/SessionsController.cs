@@ -41,8 +41,16 @@ namespace befit.Controllers
                 return NotFound();
             }
 
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             var session = await _context.Session
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
+
             if (session == null)
             {
                 return NotFound();
@@ -66,7 +74,10 @@ namespace befit.Controllers
 
         {
             session.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            if (session.End <= session.Start)
+            {
+                ModelState.AddModelError("", "Data zakończenia musi być późniejsza niż rozpoczęcia.");
+            }
             if (ModelState.IsValid)
             {
                 _context.Add(session);
@@ -84,7 +95,10 @@ namespace befit.Controllers
                 return NotFound();
             }
 
-            var session = await _context.Session.FindAsync(id);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var session = await _context.Session
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
             if (session == null)
             {
                 return NotFound();
@@ -103,12 +117,27 @@ namespace befit.Controllers
             {
                 return NotFound();
             }
-
+            if (session.End <= session.Start)
+            {
+                ModelState.AddModelError("", "Data zakończenia musi być późniejsza niż rozpoczęcia.");
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(session);
+                    string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    var existingSession = await _context.Session
+                        .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
+
+                   if (existingSession == null)
+                    {
+                        return NotFound();
+                    }
+
+                    existingSession.Start = session.Start;
+                    existingSession.End = session.End;
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -135,8 +164,10 @@ namespace befit.Controllers
                 return NotFound();
             }
 
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var session = await _context.Session
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
             if (session == null)
             {
                 return NotFound();
@@ -150,7 +181,10 @@ namespace befit.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var session = await _context.Session.FindAsync(id);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var session = await _context.Session
+                .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId);
             if (session != null)
             {
                 _context.Session.Remove(session);
