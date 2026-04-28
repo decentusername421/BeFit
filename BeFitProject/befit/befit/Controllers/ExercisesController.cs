@@ -30,7 +30,7 @@ namespace befit.Controllers
             var exercises = _context.Exercise
                 .Include(e => e.ExerciseType)
                 .Include(e => e.Session)
-                .Where(e => e.Session.UserId == userId);
+                .Where(e => e.Session!.UserId == userId);
 
             return View(await exercises.ToListAsync());
           
