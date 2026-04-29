@@ -1,0 +1,24 @@
+﻿@model befit.Models.StatisticsViewModel
+
+@{
+    ViewData["Title"] = "Statystyki";
+}
+
+<h1>Statystyki</h1>
+
+<h4>Twoje dane treningowe</h4>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-4">Liczba sesji</dt>
+    <dd class="col-sm-8">@Model.TotalSessions</dd>
+
+    <dt class="col-sm-4">Liczba ćwiczeń</dt>
+    <dd class="col-sm-8">@Model.TotalExercises</dd>
+
+    <dt class="col-sm-4">Łączna liczba serii</dt>
+    <dd class="col-sm-8">@Model.TotalSeries</dd>
+
+    <dt class="col-sm-4">Łączna liczba powtórzeń</dt>
+    <dd class="col-sm-8">@Model.TotalReps</dd>
+</dl>
